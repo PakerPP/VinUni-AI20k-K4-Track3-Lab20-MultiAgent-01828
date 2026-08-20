@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 from multi_agent_research_lab.agents.base import BaseAgent
+from multi_agent_research_lab.agents.researcher import _usage_of
 from multi_agent_research_lab.core.errors import AgentExecutionError
 from multi_agent_research_lab.core.schemas import AgentName, AgentResult
 from multi_agent_research_lab.core.state import ResearchState
@@ -62,12 +63,14 @@ class WriterAgent(BaseAgent):
 
         with trace_span("writer.run") as span:
             answer = None
+            usage: dict[str, object] = {}
             if self.llm_client is not None:
                 try:
                     response = self.llm_client.complete(  # type: ignore[attr-defined]
                         SYSTEM_PROMPT, self._build_prompt(state)
                     )
                     answer = response.content
+                    usage = _usage_of(response)
                 except AgentExecutionError as exc:
                     state.errors.append(f"{self.name}: llm failed: {exc}")
                     logger.warning("writer.llm_failed falling back error=%s", exc)
@@ -82,7 +85,7 @@ class WriterAgent(BaseAgent):
                 AgentResult(
                     agent=AgentName.WRITER,
                     content=answer,
-                    metadata={"answer_chars": len(answer)},
+                    metadata={"answer_chars": len(answer), **usage},
                 )
             )
             state.add_trace_event("writer.done", {"answer_chars": len(answer)})

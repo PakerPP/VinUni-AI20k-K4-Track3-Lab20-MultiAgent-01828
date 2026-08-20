@@ -13,6 +13,17 @@ from multi_agent_research_lab.services.search_client import SearchClient
 
 logger = logging.getLogger(__name__)
 
+
+def _usage_of(response: object) -> dict[str, object]:
+    """Per-agent token and cost, so a trace can answer "who spent what"."""
+
+    return {
+        "input_tokens": getattr(response, "input_tokens", None),
+        "output_tokens": getattr(response, "output_tokens", None),
+        "cost_usd": getattr(response, "cost_usd", None),
+    }
+
+
 SYSTEM_PROMPT = """You are a Research agent in a multi-agent research system.
 Your only job is to condense retrieved evidence into factual research notes.
 Rules:
@@ -79,12 +90,14 @@ class ResearcherAgent(BaseAgent):
             state.sources = docs
 
             notes = None
+            usage: dict[str, object] = {}
             if self.llm_client is not None:
                 try:
                     response = self.llm_client.complete(  # type: ignore[attr-defined]
                         SYSTEM_PROMPT, self._build_prompt(state)
                     )
                     notes = response.content
+                    usage = _usage_of(response)
                 except AgentExecutionError as exc:
                     state.errors.append(f"{self.name}: llm failed: {exc}")
                     logger.warning("researcher.llm_failed falling back error=%s", exc)
@@ -103,6 +116,7 @@ class ResearcherAgent(BaseAgent):
                         "num_sources": len(docs),
                         "source_ids": [d.metadata.get("source_id") for d in docs],
                         "topic_id": docs[0].metadata.get("topic_id"),
+                        **usage,
                     },
                 )
             )

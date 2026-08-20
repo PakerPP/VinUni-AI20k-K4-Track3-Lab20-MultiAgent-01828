@@ -109,3 +109,41 @@ def test_render_trace_table_lists_events() -> None:
     table = render_trace_table(state)
     assert "writer.done" in table
     assert "answer_chars=10" in table
+
+
+def test_cost_summary_reports_per_agent_spend() -> None:
+    """The rubric asks "who spent what" - the trace must answer it."""
+
+    from multi_agent_research_lab.core.schemas import AgentName, AgentResult
+
+    configure_tracing("otel")
+    state = ResearchState(request=ResearchQuery(query="Explain multi-agent systems"))
+    state.agent_results.append(
+        AgentResult(
+            agent=AgentName.RESEARCHER,
+            content="notes",
+            metadata={"input_tokens": 100, "output_tokens": 40, "cost_usd": 0.001},
+        )
+    )
+    state.agent_results.append(
+        AgentResult(agent=AgentName.SUPERVISOR, content="route=done", metadata={})
+    )
+
+    import json
+
+    from multi_agent_research_lab.observability.tracing import export_trace_json
+
+    with trace_span("researcher.run"):
+        pass
+    import tempfile
+    from pathlib import Path as _Path
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = export_trace_json(state, _Path(tmp) / "t.json")
+        summary = json.loads(path.read_text(encoding="utf-8"))["cost_summary"]
+
+    assert summary["per_agent"]["researcher"]["cost_usd"] == 0.001
+    assert summary["per_agent"]["researcher"]["input_tokens"] == 100
+    # Deterministic agents cost nothing - that is the design point.
+    assert summary["per_agent"]["supervisor"]["cost_usd"] == 0.0
+    assert summary["total_cost_usd"] == 0.001

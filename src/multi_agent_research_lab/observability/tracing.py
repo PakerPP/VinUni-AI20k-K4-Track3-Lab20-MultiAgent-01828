@@ -86,6 +86,45 @@ def reset_spans() -> None:
     _SPANS.clear()
 
 
+def _cost_summary(state: ResearchState, spans: list[dict[str, Any]]) -> dict[str, Any]:
+    """Per-agent tokens, cost and wall time - answers "who spent what" in a review."""
+
+    durations = {
+        s["name"].split(".")[0]: s.get("duration_seconds")
+        for s in spans
+        if isinstance(s.get("name"), str)
+    }
+    per_agent: dict[str, Any] = {}
+    total_cost = 0.0
+    total_in = 0
+    total_out = 0
+    for result in state.agent_results:
+        agent = str(result.agent)
+        meta = result.metadata or {}
+        cost = meta.get("cost_usd") or 0.0
+        tokens_in = meta.get("input_tokens") or 0
+        tokens_out = meta.get("output_tokens") or 0
+        entry = per_agent.setdefault(
+            agent,
+            {"calls": 0, "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0},
+        )
+        entry["calls"] += 1
+        entry["input_tokens"] += tokens_in
+        entry["output_tokens"] += tokens_out
+        entry["cost_usd"] += cost
+        entry["duration_seconds"] = durations.get(agent)
+        total_cost += cost
+        total_in += tokens_in
+        total_out += tokens_out
+
+    return {
+        "per_agent": per_agent,
+        "total_cost_usd": round(total_cost, 6),
+        "total_input_tokens": total_in,
+        "total_output_tokens": total_out,
+    }
+
+
 def export_trace_json(
     state: ResearchState,
     path: Path,
@@ -103,6 +142,7 @@ def export_trace_json(
         "errors": state.errors,
         "spans": spans,
         "state_events": state.trace,
+        "cost_summary": _cost_summary(state, spans),
         "agent_results": [
             {
                 "agent": str(r.agent),

@@ -1,6 +1,6 @@
 {
   "run_name": "multi-agent",
-  "exported_at": "2026-08-20T11:45:18.929329+00:00",
+  "exported_at": "2026-08-20T13:15:31.207384+00:00",
   "query": "When is a multi-agent architecture better than a single agent for research tasks?",
   "route_history": [
     "researcher",
@@ -18,28 +18,28 @@
         "query": "When is a multi-agent architecture better than a single agent for research tasks?",
         "num_sources": 4
       },
-      "duration_seconds": 8.76094749999902,
-      "started_at": "2026-08-20T11:44:55.907777+00:00",
+      "duration_seconds": 9.516883399999642,
+      "started_at": "2026-08-20T13:15:05.555767+00:00",
       "status": "ok",
       "provider": "opentelemetry"
     },
     {
       "name": "analyst.run",
       "attributes": {
-        "analysis_chars": 2805
+        "analysis_chars": 2961
       },
-      "duration_seconds": 7.247644399998535,
-      "started_at": "2026-08-20T11:45:04.671784+00:00",
+      "duration_seconds": 10.279208299998572,
+      "started_at": "2026-08-20T13:15:15.076722+00:00",
       "status": "ok",
       "provider": "opentelemetry"
     },
     {
       "name": "writer.run",
       "attributes": {
-        "answer_chars": 3123
+        "answer_chars": 3240
       },
-      "duration_seconds": 6.99987869999859,
-      "started_at": "2026-08-20T11:45:11.921374+00:00",
+      "duration_seconds": 5.841442600001756,
+      "started_at": "2026-08-20T13:15:25.358629+00:00",
       "status": "ok",
       "provider": "opentelemetry"
     },
@@ -48,8 +48,8 @@
       "attributes": {
         "citation_coverage": 1.0
       },
-      "duration_seconds": 0.00019839999913529027,
-      "started_at": "2026-08-20T11:45:18.924336+00:00",
+      "duration_seconds": 0.00011199999789823778,
+      "started_at": "2026-08-20T13:15:31.202377+00:00",
       "status": "ok",
       "provider": "opentelemetry"
     },
@@ -60,8 +60,8 @@
         "engine": "langgraph",
         "iterations": 5
       },
-      "duration_seconds": 23.8895536,
-      "started_at": "2026-08-20T11:44:55.036844+00:00",
+      "duration_seconds": 26.397206300000107,
+      "started_at": "2026-08-20T13:15:04.807543+00:00",
       "status": "ok",
       "provider": "opentelemetry"
     }
@@ -82,7 +82,7 @@
       "name": "researcher.done",
       "payload": {
         "num_sources": 4,
-        "notes_chars": 2395
+        "notes_chars": 2339
       }
     },
     {
@@ -99,7 +99,7 @@
     {
       "name": "analyst.done",
       "payload": {
-        "analysis_chars": 2805
+        "analysis_chars": 2961
       }
     },
     {
@@ -116,7 +116,7 @@
     {
       "name": "writer.done",
       "payload": {
-        "answer_chars": 3123
+        "answer_chars": 3240
       }
     },
     {
@@ -163,6 +163,48 @@
       }
     }
   ],
+  "cost_summary": {
+    "per_agent": {
+      "supervisor": {
+        "calls": 5,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "duration_seconds": null
+      },
+      "researcher": {
+        "calls": 1,
+        "input_tokens": 1492,
+        "output_tokens": 403,
+        "cost_usd": 0.0004656,
+        "duration_seconds": 9.516883399999642
+      },
+      "analyst": {
+        "calls": 1,
+        "input_tokens": 900,
+        "output_tokens": 538,
+        "cost_usd": 0.0004578,
+        "duration_seconds": 10.279208299998572
+      },
+      "writer": {
+        "calls": 1,
+        "input_tokens": 1112,
+        "output_tokens": 504,
+        "cost_usd": 0.0004691999999999999,
+        "duration_seconds": 5.841442600001756
+      },
+      "critic": {
+        "calls": 1,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cost_usd": 0.0,
+        "duration_seconds": 0.00011199999789823778
+      }
+    },
+    "total_cost_usd": 0.001393,
+    "total_input_tokens": 3504,
+    "total_output_tokens": 1445
+  },
   "agent_results": [
     {
       "agent": "supervisor",
@@ -182,9 +224,12 @@
           "anthropic_agents",
           "agentbench"
         ],
-        "topic_id": "AIAGENT-01"
+        "topic_id": "AIAGENT-01",
+        "input_tokens": 1492,
+        "output_tokens": 403,
+        "cost_usd": 0.0004656
       },
-      "content_preview": "- Multi-agent architectures allow for customizable agent interactions, enabling roles and message exchanges rather than relying on a single monolithic prompt. This can enhance collaboration in complex research tasks. [autogen]\n- The AutoGen framework demonstrates that multi-agent systems can be architecturally advantageous, but does not guarantee that they will always outperform single-agent systems across all tasks. [autogen]\n- MetaGPT emphasizes the importance of structured operating procedure"
+      "content_preview": "- Multi-agent architectures allow for customizable agent interactions, enabling collaboration through defined roles and message exchanges rather than a single prompt. This can enhance the handling of complex tasks. [autogen]\n- The AutoGen framework supports the idea that multi-agent systems can be architecturally superior for certain applications, particularly when tasks require diverse inputs and outputs. [autogen]\n- MetaGPT emphasizes the importance of structured roles and procedures in multi-"
     },
     {
       "agent": "supervisor",
@@ -197,9 +242,12 @@
     {
       "agent": "analyst",
       "metadata": {
-        "num_sources_considered": 4
+        "num_sources_considered": 4,
+        "input_tokens": 900,
+        "output_tokens": 538,
+        "cost_usd": 0.0004578
       },
-      "content_preview": "1. **Key claims**  \n   - Multi-agent architectures allow for customizable agent interactions, enhancing collaboration in complex research tasks. [autogen]  \n   - The AutoGen framework shows that multi-agent systems can be architecturally advantageous but may not always outperform single-agent systems. [autogen]  \n   - Multi-agent collaboration benefits from structured operating procedures and specialized roles to mitigate risks like cascading hallucinations. [metagpt]  \n   - The effectiveness of"
+      "content_preview": "1. **Key claims**  \n   - Multi-agent architectures allow for customizable agent interactions, enhancing the handling of complex tasks. [autogen]  \n   - The AutoGen framework supports that multi-agent systems can be architecturally superior for applications requiring diverse inputs and outputs. [autogen]  \n   - MetaGPT emphasizes structured roles and procedures in multi-agent systems to mitigate risks like cascading hallucinations. [metagpt]  \n   - Standardized operating procedures in multi-agent"
     },
     {
       "agent": "supervisor",
@@ -212,9 +260,12 @@
     {
       "agent": "writer",
       "metadata": {
-        "answer_chars": 3123
+        "answer_chars": 3240,
+        "input_tokens": 1112,
+        "output_tokens": 504,
+        "cost_usd": 0.0004691999999999999
       },
-      "content_preview": "### Introduction\nMulti-agent architectures offer distinct advantages over single-agent systems in specific research contexts. Their ability to facilitate complex interactions and distribute responsibilities makes them particularly suited for tasks that require collaboration and nuanced decision-making. However, the choice between multi-agent and single-agent systems is not straightforward and depends on various factors.\n\n### Customizable Interactions and Collaboration\nMulti-agent architectures e"
+      "content_preview": "### Introduction\nMulti-agent architectures offer distinct advantages over single-agent systems for certain research tasks, particularly those that are complex and require collaborative interactions. This response outlines when multi-agent systems are preferable, supported by various frameworks and insights from the literature.\n\n### Enhanced Collaboration and Customization\nMulti-agent architectures enable customizable interactions among agents, allowing for collaboration through defined roles and"
     },
     {
       "agent": "supervisor",

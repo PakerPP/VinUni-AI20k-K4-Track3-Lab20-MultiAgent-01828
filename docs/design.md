@@ -89,6 +89,18 @@ python -m multi_agent_research_lab.cli multi-agent -q "..." --tracer otel
 # -> tracing provider: opentelemetry / opentelemetry: exported 5 spans
 ```
 
+Trace ghi **token, cost và wall-time theo từng agent** (`cost_summary` trong trace JSON),
+nên trả lời được câu rubric hỏi "tốn bao nhiêu":
+
+```text
+AGENT         CALLS   TOK_IN   TOK_OUT   COST_USD
+researcher        1     1492       403   0.000466
+analyst           1      900       538   0.000458
+writer            1     1112       504   0.000469
+supervisor        5        0         0   0.000000   <- routing tất định, không tốn LLM
+critic            1        0         0   0.000000   <- verify bằng string match
+```
+
 Song song đó `export_trace_json()` ghi trace tự chứa ra `reports/trace_demo.json`, và
 `--screenshot` render trace thành PNG (`reports/screenshots/`) — sinh từ dữ liệu trace
 nên tái tạo được, không phải ảnh chụp màn hình thủ công.
