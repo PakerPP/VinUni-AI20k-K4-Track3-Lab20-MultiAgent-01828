@@ -14,7 +14,7 @@ from rich.table import Table
 from rich.text import Text
 
 from multi_agent_research_lab.core.config import get_settings
-from multi_agent_research_lab.core.schemas import BenchmarkMetrics, ResearchQuery
+from multi_agent_research_lab.core.schemas import AgentResult, BenchmarkMetrics, ResearchQuery
 from multi_agent_research_lab.core.state import ResearchState
 from multi_agent_research_lab.evaluation.baseline import SingleAgentBaseline
 from multi_agent_research_lab.evaluation.benchmark import run_benchmark
@@ -97,6 +97,49 @@ def baseline(
     )
 
 
+def _print_summary(state: ResearchState, critic: list[AgentResult]) -> None:
+    """Compact digest: everything a reviewer needs on one screen."""
+
+    answer = state.final_answer or ""
+    table = Table(title="Multi-Agent Run Summary", show_header=False, box=None)
+    table.add_column(style="bold")
+    table.add_column()
+    table.add_row("Query", state.request.query[:70])
+    table.add_row("Routes", " -> ".join(state.route_history) or "n/a")
+    table.add_row("Iterations", str(state.iteration))
+    table.add_row(
+        "Sources",
+        ", ".join(
+            str(d.metadata.get("source_id")) for d in state.sources if d.metadata.get("source_id")
+        )
+        or "none",
+    )
+    table.add_row("Answer length", f"{len(answer.split())} words / {len(answer)} chars")
+    if critic:
+        meta = critic[0].metadata
+        coverage = meta.get("citation_coverage") or 0.0
+        table.add_row("Citation coverage", f"{float(coverage):.0%}")
+        table.add_row("Hallucinated citations", str(len(meta.get("hallucinated") or [])))
+    table.add_row("Errors", str(len(state.errors)) if state.errors else "none")
+    console.print(table)
+
+    usage = [
+        (str(r.agent), r.metadata.get("cost_usd"), r.metadata.get("output_tokens"))
+        for r in state.agent_results
+        if r.metadata.get("cost_usd") is not None
+    ]
+    if usage:
+        cost_table = Table(title="Per-agent cost", box=None)
+        cost_table.add_column("Agent", style="bold")
+        cost_table.add_column("Cost (USD)", justify="right")
+        cost_table.add_column("Out tokens", justify="right")
+        for agent, cost, out_tokens in usage:
+            cost_table.add_row(agent, f"{float(cost or 0.0):.6f}", str(out_tokens or 0))
+        console.print(cost_table)
+
+    console.print("[dim]Full answer: use --trace-out / --screenshot, or drop --summary.[/dim]")
+
+
 @app.command("multi-agent")
 def multi_agent(
     query: Annotated[str, typer.Option("--query", "-q", help="Research query")],
@@ -115,6 +158,13 @@ def multi_agent(
     screenshot: Annotated[
         Path | None, typer.Option("--screenshot", help="Render the trace to a PNG here")
     ] = None,
+    summary: Annotated[
+        bool,
+        typer.Option(
+            "--summary",
+            help="Print a compact one-screen digest instead of the full answer",
+        ),
+    ] = False,
 ) -> None:
     """Run the multi-agent workflow: Supervisor, Researcher, Analyst, Writer, Critic."""
 
@@ -129,17 +179,20 @@ def multi_agent(
     workflow = MultiAgentWorkflow(llm_client=_make_llm(mock))
     state = workflow.run(state)
 
-    console.print(Panel.fit(Text(state.final_answer or "(no answer)"), title="Multi-Agent Answer"))
-
     critic = [r for r in state.agent_results if str(r.agent) == "critic"]
-    if critic:
-        console.print(Panel.fit(Text(critic[0].content), title="Critic Review", style="cyan"))
+
+    if summary:
+        _print_summary(state, critic)
+    else:
+        console.print(Panel(Text(state.final_answer or "(no answer)"), title="Multi-Agent Answer"))
+        if critic:
+            console.print(Panel(Text(critic[0].content), title="Critic Review", style="cyan"))
 
     if state.errors:
         console.print(Panel.fit("\n".join(state.errors), title="Errors", style="red"))
 
     if show_trace:
-        console.print(Panel.fit(render_trace_table(state), title="Trace", style="dim"))
+        console.print(Panel(Text(render_trace_table(state)), title="Trace", style="dim"))
 
     if trace_out:
         path = export_trace_json(state, trace_out, run_name="multi-agent")
