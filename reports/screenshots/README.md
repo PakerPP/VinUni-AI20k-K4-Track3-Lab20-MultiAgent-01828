@@ -19,19 +19,16 @@ python -m multi_agent_research_lab.cli multi-agent \
   --max-sources 4
 ```
 
-## Ảnh sinh tự động từ dữ liệu trace
+## Render trace thành ảnh bằng code
 
-| Ảnh | Nội dung |
-|---|---|
-| [`trace_multi_agent.png`](trace_multi_agent.png) | Timeline 10 bước của crew, màu theo agent |
-| [`trace_baseline.png`](trace_baseline.png) | Baseline chỉ 1 bước, để so sánh |
-
-Sinh bằng `--screenshot`, render từ chính trace JSON nên tái tạo được:
+Ngoài ảnh chụp tay, CLI có thể tự vẽ trace thành PNG từ chính dữ liệu trace
+(`observability/screenshot.py`) — tái tạo được, không phụ thuộc thao tác chụp:
 
 ```bash
-python -m multi_agent_research_lab.cli multi-agent -q "..." \
-  --screenshot reports/screenshots/trace_multi_agent.png
+python -m multi_agent_research_lab.cli multi-agent -q "..."   --screenshot reports/screenshots/trace.png
 ```
+
+Ảnh mẫu không commit vào repo; chạy lệnh trên là sinh ra.
 
 ## Trace đầy đủ dạng dữ liệu
 

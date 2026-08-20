@@ -191,9 +191,9 @@ overhead không có việc để biện minh.
 1. Code: `src/multi_agent_research_lab/` — **53 test pass**, ruff clean.
 2. Design doc: [`docs/design.md`](docs/design.md) + template đã điền [`docs/design_template.md`](docs/design_template.md).
 3. Benchmark: [`reports/benchmark_report.md`](reports/benchmark_report.md).
-4. Trace: `reports/trace_demo.json` + **6 screenshot** trong
-   [`reports/screenshots/`](reports/screenshots/) — 4 ảnh chụp terminal chạy thật
-   (có log token/cost và HTTP 200 tới OpenAI) + 2 ảnh render tự động từ trace data.
+4. Trace: `reports/trace_demo.json` + **4 screenshot** terminal chạy thật trong
+   [`reports/screenshots/`](reports/screenshots/) — có log token/cost per-agent và
+   HTTP 200 tới OpenAI. (`--screenshot` render trace thành PNG khi cần.)
 5. Failure mode + cách fix: [`docs/design.md`](docs/design.md) — **5 lỗi gặp thật** (gồm cả lỗi thiết kế phép đo) + 2 hạn chế còn tồn tại.
 
 ## References
