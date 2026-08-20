@@ -1,8 +1,11 @@
 # Lab 20: Multi-Agent Research System Starter
 
-Starter repo cho bài lab **Multi-Agent Systems**: xây dựng hệ thống nghiên cứu gồm **Supervisor + Researcher + Analyst + Writer** và benchmark với single-agent baseline.
+Bài lab **Multi-Agent Systems**: hệ thống nghiên cứu gồm **Supervisor + Researcher + Analyst + Writer + Critic**, benchmark với single-agent baseline.
 
-> Mục tiêu của repo này là cung cấp **production-grade skeleton** để học viên phát triển code cá nhân. Các phần logic quan trọng được để ở dạng `TODO` để học viên tự triển khai.
+> **Trạng thái: đã hoàn thành.** Toàn bộ `TODO(student)` trong `src/` đã được implement.
+> Thiết kế và lý do lựa chọn: [`docs/design.md`](docs/design.md). Kết quả: [`reports/benchmark_report.md`](reports/benchmark_report.md).
+
+**Điểm đặc thù:** retrieval chạy **offline** trên corpus `ai_agent_offline_research_corpus_v2/` (30 topic) thay vì web search — đúng benchmark rule của corpus, và không cần Tavily key.
 
 ## Learning outcomes
 
@@ -120,32 +123,77 @@ Mặc định lệnh sẽ báo các `TODO` cần làm. Đây là chủ đích c�
 - Không để agent chạy vô hạn: dùng `max_iterations`, `timeout_seconds`.
 - Có benchmark report thay vì chỉ demo output đẹp.
 
-## TODO chính cho học viên
-
-Tìm trong code các marker:
+## Cách chạy
 
 ```bash
-grep -R "TODO(student)" -n src tests docs
+# Multi-agent, retrieval offline, xuất JSON trace
+python -m multi_agent_research_lab.cli multi-agent   -q "When is a multi-agent architecture better than a single agent?"   --max-sources 4 --trace-out reports/trace_demo.json
+
+# Single-agent baseline
+python -m multi_agent_research_lab.cli baseline -q "..."
+
+# Benchmark 3 arm (baseline / multi-agent / baseline không retrieval) + LLM judge
+python -m multi_agent_research_lab.cli benchmark --out reports/benchmark_report.md
+
+# Trace kèm screenshot PNG
+python -m multi_agent_research_lab.cli multi-agent -q "..."   --tracer otel --trace-out reports/trace_demo.json   --screenshot reports/screenshots/trace.png
 ```
 
-Các phần học viên cần tự làm:
+Baseline mặc định nhận **cùng evidence** như crew (`--no-retrieval` để chạy arm cũ).
+Tắt judge bằng `--no-judge`, tắt arm thứ ba bằng `--no-naive`.
 
-1. Implement LLM client.
-2. Implement web/search client hoặc mock search source.
-3. Implement routing decision trong Supervisor.
-4. Implement từng worker agent.
-5. Build LangGraph workflow.
-6. Thêm tracing provider thật: LangSmith, Langfuse hoặc OpenTelemetry.
-7. Viết benchmark report.
+Chọn tracing provider bằng `--tracer otel|langsmith|auto|none` (mặc định `auto`:
+LangSmith nếu có key, còn lại OpenTelemetry — không cần key).
+
+Thêm `--mock` vào bất kỳ lệnh nào để chạy **không cần API key** (mock LLM tất định).
+Nếu `OPENAI_API_KEY` trống, CLI tự động dùng mock và báo bằng dòng cảnh báo vàng.
+
+## Kết quả benchmark
+
+Chạy thật với `gpt-4o-mini`, 3 query, chấm bằng **LLM-as-judge**
+(chi tiết: [`reports/benchmark_report.md`](reports/benchmark_report.md)):
+
+| Metric | Single-agent | Multi-agent | Delta | No-retrieval |
+|---|---:|---:|---:|---:|
+| Latency (s) | 9.85 | 20.09 | **+104%** | 9.93 |
+| Cost (USD) | 0.0007 | 0.0015 | **+114%** | 0.0004 |
+| Quality (0-10) | 8.2 | 8.2 | **0.0** | 8.2 |
+| Citation coverage | 73% | 73% | **0%** | 0% |
+
+**Kết quả là âm, và đó chính là phát hiện.** Trên workload này multi-agent tốn gấp đôi
+thời gian và gấp đôi tiền mà **không** tốt hơn: quality ngang nhau, citation coverage
+ngang nhau. Lý do: retrieval ở đây quá dễ — corpus trả về đúng 5 nguồn ngay lần đầu, và
+task chỉ là "đọc 5 tài liệu rồi tổng hợp". Một model đủ tốt làm xong trong một lượt;
+mọi thứ crew thêm vào (handoff sang analyst, vòng critic, viết lại) là coordination
+overhead không có việc để biện minh.
+
+> **Vì sao con số này khác bản trước.** Phiên bản đầu cho baseline **không** retrieval,
+> ra kết quả 0% vs 87% — nhưng đó là đo *retrieval*, không phải đo *orchestration*:
+> baseline không có gì để trích dẫn thì coverage 0% là tất yếu. Cột "No-retrieval" giữ
+> lại arm cũ để thấy rõ phép so sánh đó gây hiểu lầm thế nào.
+
+## Implementation
+
+| Thành phần | File | Ghi chú |
+|---|---|---|
+| Routing policy | `agents/supervisor.py` | State-driven, tất định; max-iteration + skip agent lỗi |
+| Retrieval offline | `services/search_client.py` | Chọn topic theo term overlap, trả `source_id` để cite |
+| LLM client | `services/llm_client.py` | Retry (tenacity), timeout, token + cost tracking |
+| Citation verify | `agents/critic.py` | String matching, không dùng LLM tự chấm chính nó |
+| Workflow | `graph/workflow.py` | LangGraph, fallback sang plain loop nếu langgraph lỗi |
+| Baseline (control) | `evaluation/baseline.py` | Nhận **cùng evidence** như crew, 1 LLM call — cô lập biến orchestration |
+| Quality grading | `evaluation/judge.py` | **LLM-as-judge** 0-10, heuristic làm fallback |
+| Metrics | `evaluation/benchmark.py` | Coverage, hallucinated citations, LLM calls, cost |
+| Trace | `observability/tracing.py`, `providers.py` | **OpenTelemetry** (mặc định, không cần key) + LangSmith nếu có key; export JSON + bảng terminal |
 
 ## Deliverables
 
-Học viên nộp:
-
-1. GitHub repo cá nhân.
-2. Screenshot trace hoặc link trace.
-3. `reports/benchmark_report.md` so sánh single vs multi-agent.
-4. Một đoạn giải thích failure mode và cách fix.
+1. Code: `src/multi_agent_research_lab/` — **53 test pass**, ruff clean.
+2. Design doc: [`docs/design.md`](docs/design.md) + template đã điền [`docs/design_template.md`](docs/design_template.md).
+3. Benchmark: [`reports/benchmark_report.md`](reports/benchmark_report.md).
+4. Trace: `reports/trace_demo.json` + **screenshot** `reports/screenshots/*.png`
+   (sinh bằng `--trace-out` và `--screenshot`, tái tạo được từ dữ liệu trace).
+5. Failure mode + cách fix: [`docs/design.md`](docs/design.md) — **5 lỗi gặp thật** (gồm cả lỗi thiết kế phép đo) + 2 hạn chế còn tồn tại.
 
 ## References
 

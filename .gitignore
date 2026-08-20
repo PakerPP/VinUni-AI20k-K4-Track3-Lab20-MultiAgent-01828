@@ -11,3 +11,8 @@ build/
 reports/*.json
 reports/*.md
 !.gitkeep
+
+# Lab deliverables: the benchmark report and the trace are graded artefacts,
+# so they are committed even though scratch runs in reports/ are ignored.
+!reports/benchmark_report.md
+!reports/trace_demo.json

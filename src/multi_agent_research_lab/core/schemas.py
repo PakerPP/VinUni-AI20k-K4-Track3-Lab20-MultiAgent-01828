@@ -41,3 +41,11 @@ class BenchmarkMetrics(BaseModel):
     citation_coverage: float | None = Field(default=None, ge=0, le=1)
     failure_rate: float | None = Field(default=None, ge=0, le=1)
     notes: str = ""
+
+
+class QualityVerdict(BaseModel):
+    """Result of an LLM-as-judge grading pass."""
+
+    score: float = Field(..., ge=0, le=10)
+    strengths: str = ""
+    weaknesses: str = ""

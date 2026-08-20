@@ -1,0 +1,273 @@
+{
+  "run_name": "multi-agent",
+  "exported_at": "2026-08-20T11:45:18.929329+00:00",
+  "query": "When is a multi-agent architecture better than a single agent for research tasks?",
+  "route_history": [
+    "researcher",
+    "analyst",
+    "writer",
+    "critic",
+    "done"
+  ],
+  "iterations": 5,
+  "errors": [],
+  "spans": [
+    {
+      "name": "researcher.run",
+      "attributes": {
+        "query": "When is a multi-agent architecture better than a single agent for research tasks?",
+        "num_sources": 4
+      },
+      "duration_seconds": 8.76094749999902,
+      "started_at": "2026-08-20T11:44:55.907777+00:00",
+      "status": "ok",
+      "provider": "opentelemetry"
+    },
+    {
+      "name": "analyst.run",
+      "attributes": {
+        "analysis_chars": 2805
+      },
+      "duration_seconds": 7.247644399998535,
+      "started_at": "2026-08-20T11:45:04.671784+00:00",
+      "status": "ok",
+      "provider": "opentelemetry"
+    },
+    {
+      "name": "writer.run",
+      "attributes": {
+        "answer_chars": 3123
+      },
+      "duration_seconds": 6.99987869999859,
+      "started_at": "2026-08-20T11:45:11.921374+00:00",
+      "status": "ok",
+      "provider": "opentelemetry"
+    },
+    {
+      "name": "critic.run",
+      "attributes": {
+        "citation_coverage": 1.0
+      },
+      "duration_seconds": 0.00019839999913529027,
+      "started_at": "2026-08-20T11:45:18.924336+00:00",
+      "status": "ok",
+      "provider": "opentelemetry"
+    },
+    {
+      "name": "workflow.run",
+      "attributes": {
+        "query": "When is a multi-agent architecture better than a single agent for research tasks?",
+        "engine": "langgraph",
+        "iterations": 5
+      },
+      "duration_seconds": 23.8895536,
+      "started_at": "2026-08-20T11:44:55.036844+00:00",
+      "status": "ok",
+      "provider": "opentelemetry"
+    }
+  ],
+  "state_events": [
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "route": "researcher",
+        "iteration": 1,
+        "has_sources": false,
+        "has_analysis": false,
+        "has_answer": false,
+        "errors": 0
+      }
+    },
+    {
+      "name": "researcher.done",
+      "payload": {
+        "num_sources": 4,
+        "notes_chars": 2395
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "route": "analyst",
+        "iteration": 2,
+        "has_sources": true,
+        "has_analysis": false,
+        "has_answer": false,
+        "errors": 0
+      }
+    },
+    {
+      "name": "analyst.done",
+      "payload": {
+        "analysis_chars": 2805
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "route": "writer",
+        "iteration": 3,
+        "has_sources": true,
+        "has_analysis": true,
+        "has_answer": false,
+        "errors": 0
+      }
+    },
+    {
+      "name": "writer.done",
+      "payload": {
+        "answer_chars": 3123
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "route": "critic",
+        "iteration": 4,
+        "has_sources": true,
+        "has_analysis": true,
+        "has_answer": true,
+        "errors": 0
+      }
+    },
+    {
+      "name": "critic.done",
+      "payload": {
+        "citation_coverage": 1.0,
+        "hallucinated": 0
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "route": "done",
+        "iteration": 5,
+        "has_sources": true,
+        "has_analysis": true,
+        "has_answer": true,
+        "errors": 0
+      }
+    },
+    {
+      "name": "workflow.done",
+      "payload": {
+        "iterations": 5,
+        "route_history": [
+          "researcher",
+          "analyst",
+          "writer",
+          "critic",
+          "done"
+        ],
+        "errors": []
+      }
+    }
+  ],
+  "agent_results": [
+    {
+      "agent": "supervisor",
+      "metadata": {
+        "iteration": 1,
+        "route": "researcher"
+      },
+      "content_preview": "route=researcher"
+    },
+    {
+      "agent": "researcher",
+      "metadata": {
+        "num_sources": 4,
+        "source_ids": [
+          "autogen",
+          "metagpt",
+          "anthropic_agents",
+          "agentbench"
+        ],
+        "topic_id": "AIAGENT-01"
+      },
+      "content_preview": "- Multi-agent architectures allow for customizable agent interactions, enabling roles and message exchanges rather than relying on a single monolithic prompt. This can enhance collaboration in complex research tasks. [autogen]\n- The AutoGen framework demonstrates that multi-agent systems can be architecturally advantageous, but does not guarantee that they will always outperform single-agent systems across all tasks. [autogen]\n- MetaGPT emphasizes the importance of structured operating procedure"
+    },
+    {
+      "agent": "supervisor",
+      "metadata": {
+        "iteration": 2,
+        "route": "analyst"
+      },
+      "content_preview": "route=analyst"
+    },
+    {
+      "agent": "analyst",
+      "metadata": {
+        "num_sources_considered": 4
+      },
+      "content_preview": "1. **Key claims**  \n   - Multi-agent architectures allow for customizable agent interactions, enhancing collaboration in complex research tasks. [autogen]  \n   - The AutoGen framework shows that multi-agent systems can be architecturally advantageous but may not always outperform single-agent systems. [autogen]  \n   - Multi-agent collaboration benefits from structured operating procedures and specialized roles to mitigate risks like cascading hallucinations. [metagpt]  \n   - The effectiveness of"
+    },
+    {
+      "agent": "supervisor",
+      "metadata": {
+        "iteration": 3,
+        "route": "writer"
+      },
+      "content_preview": "route=writer"
+    },
+    {
+      "agent": "writer",
+      "metadata": {
+        "answer_chars": 3123
+      },
+      "content_preview": "### Introduction\nMulti-agent architectures offer distinct advantages over single-agent systems in specific research contexts. Their ability to facilitate complex interactions and distribute responsibilities makes them particularly suited for tasks that require collaboration and nuanced decision-making. However, the choice between multi-agent and single-agent systems is not straightforward and depends on various factors.\n\n### Customizable Interactions and Collaboration\nMulti-agent architectures e"
+    },
+    {
+      "agent": "supervisor",
+      "metadata": {
+        "iteration": 4,
+        "route": "critic"
+      },
+      "content_preview": "route=critic"
+    },
+    {
+      "agent": "critic",
+      "metadata": {
+        "citation_coverage": 1.0,
+        "hallucinated": [],
+        "cited": [
+          "agentbench",
+          "anthropic_agents",
+          "autogen",
+          "metagpt"
+        ],
+        "synthetic_used": []
+      },
+      "content_preview": "- Citation coverage: 100% (4/4 sources cited).\n- PASS - every citation maps to a supplied source."
+    },
+    {
+      "agent": "supervisor",
+      "metadata": {
+        "iteration": 5,
+        "route": "done"
+      },
+      "content_preview": "route=done"
+    }
+  ],
+  "sources": [
+    {
+      "title": "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation",
+      "source_id": "autogen",
+      "is_synthetic": false
+    },
+    {
+      "title": "MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework",
+      "source_id": "metagpt",
+      "is_synthetic": false
+    },
+    {
+      "title": "Building Effective Agents",
+      "source_id": "anthropic_agents",
+      "is_synthetic": false
+    },
+    {
+      "title": "AgentBench: Evaluating LLMs as Agents",
+      "source_id": "agentbench",
+      "is_synthetic": false
+    }
+  ]
+}
